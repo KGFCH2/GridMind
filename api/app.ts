@@ -1,5 +1,5 @@
 import express from "express";
-import { solveSudoku, generateSudoku, analyzeSudoku, getHint } from "../src/lib/sudoku.ts";
+import { solveSudoku, generateSudoku, analyzeSudoku, getHint } from "../src/lib/sudoku.js";
 import Groq from "groq-sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -59,7 +59,9 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
                 const result = await model.generateContent({
                     contents: [{ role: "user", parts: [{ text: systemPrompt + "\n\nUser question: " + message }] }]
                 });
-                return res.json({ response: result.response.text(), provider: "gemini", success: true });
+                const responseText = result.response.text();
+                console.log("Gemini response success");
+                return res.json({ response: responseText, provider: "gemini", success: true });
             } catch (geminiErr: any) {
                 console.error("Gemini API error:", geminiErr);
             }
@@ -71,14 +73,17 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
                     messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }],
                     model: "llama-3-70b-8192",
                 });
+                console.log("Groq response success");
                 return res.json({ response: completion.choices[0].message.content, provider: "groq", success: true });
             } catch (groqErr: any) {
                 console.error("Groq API error:", groqErr);
             }
         }
 
-        return res.status(503).json({ error: "AI service unavailable" });
+        console.error("Both AI providers failed or were not configured");
+        return res.status(503).json({ error: "AI service unavailable", details: "Check server logs for provider errors" });
     } catch (err: any) {
+        console.error("Outer Chat Catch:", err);
         res.status(500).json({ error: "Failed to get AI response", details: err.message });
     }
 });
