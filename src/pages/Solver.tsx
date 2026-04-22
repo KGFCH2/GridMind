@@ -326,11 +326,12 @@ export default function Solver() {
 
       if (!response.ok) {
         const text = await response.text();
+        console.error("AI Chat Error Response:", text);
         try {
           const json = JSON.parse(text);
           setError(json.error || `Server error: ${response.status}`);
         } catch {
-          setError(`HTTP Error ${response.status}: Failed to reach AI service.`);
+          setError(`HTTP Error ${response.status}: ${text.slice(0, 100) || "Failed to reach AI service."}`);
         }
         setIsAiThinking(false);
         return;

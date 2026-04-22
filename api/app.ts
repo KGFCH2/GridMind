@@ -3,6 +3,12 @@ import { solveSudoku, generateSudoku, analyzeSudoku, getHint } from "../src/lib/
 import Groq from "groq-sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+console.log("Environment check:", {
+    hasGemini: !!process.env.GEMINI_API_KEY,
+    hasGroq: !!process.env.GROQ_API_KEY,
+    nodeEnv: process.env.NODE_ENV
+});
+
 const app = express();
 app.use(express.json());
 
