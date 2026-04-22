@@ -26,9 +26,14 @@ const getGroq = () => {
 
 // AI Chat Route
 app.post("/api/ai/chat", async (req, res) => {
-    const { message, grid } = req.body;
-    
-    const gemini = getGemini();
+    try {
+        const { message, grid } = req.body;
+        
+        if (!grid || !Array.isArray(grid)) {
+            return res.status(400).json({ error: "Invalid grid provided" });
+        }
+
+        const gemini = getGemini();
     const groq = getGroq();
     
     if (!gemini && !groq) {
