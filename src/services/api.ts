@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.PROD ? '/api' : 'http://localhost:3000/api',
 });
 
 export const solveSudoku = async (grid: number[][]) => {
