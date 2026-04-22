@@ -13,13 +13,13 @@ const app = express();
 app.use(express.json());
 
 const getGemini = () => {
-    const key = process.env.GEMINI_API_KEY;
+    const key = process.env.GEMINI_API_KEY?.trim().replace(/^["']|["']$/g, '');
     if (!key) return null;
     return new GoogleGenerativeAI(key);
 };
 
 const getGroq = () => {
-    const key = process.env.GROQ_API_KEY;
+    const key = process.env.GROQ_API_KEY?.trim().replace(/^["']|["']$/g, '');
     if (!key) return null;
     return new Groq({ apiKey: key });
 };
@@ -63,10 +63,14 @@ When providing hints or solving assistance:
 
 Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDigit}!`;
 
+    let lastGeminiError = null;
+    let lastGroqError = null;
+
     try {
         if (gemini) {
             try {
-                const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
+                // Using gemini-1.5-flash which is more stable in different regions than 2.0-flash
+                const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = await model.generateContent({
                     contents: [{ role: "user", parts: [{ text: systemPrompt + "\n\nUser question: " + message }] }]
                 });
@@ -74,6 +78,7 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
                 console.log("Gemini response success");
                 return res.json({ response: responseText, provider: "gemini", success: true });
             } catch (geminiErr: any) {
+                lastGeminiError = geminiErr.message;
                 console.error("Gemini API error:", geminiErr);
             }
         }
@@ -82,17 +87,24 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
             try {
                 const completion = await groq.chat.completions.create({
                     messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }],
-                    model: "llama-3-70b-8192",
+                    model: "llama-3.1-70b-versatile", // Upgrading to 3.1 for better stability
                 });
                 console.log("Groq response success");
                 return res.json({ response: completion.choices[0].message.content, provider: "groq", success: true });
             } catch (groqErr: any) {
+                lastGroqError = groqErr.message;
                 console.error("Groq API error:", groqErr);
             }
         }
 
         console.error("Both AI providers failed or were not configured");
-        return res.status(503).json({ error: "AI service unavailable", details: "Check server logs for provider errors" });
+        return res.status(503).json({ 
+            error: "AI service unavailable", 
+            details: {
+                gemini: lastGeminiError,
+                groq: lastGroqError
+            }
+        });
     } catch (err: any) {
         console.error("Outer Chat Catch:", err);
         res.status(500).json({ error: "Failed to get AI response", details: err.message });
