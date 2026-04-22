@@ -323,14 +323,28 @@ export default function Solver() {
           grid 
         })
       });
+
+      if (!response.ok) {
+        const text = await response.text();
+        try {
+          const json = JSON.parse(text);
+          setError(json.error || `Server error: ${response.status}`);
+        } catch {
+          setError(`HTTP Error ${response.status}: Failed to reach AI service.`);
+        }
+        setIsAiThinking(false);
+        return;
+      }
+
       const data = await response.json();
       if (data.error) {
-        setError(data.error === "GROQ API key not configured" ? "Please provide a GROQ_API_KEY in the environment variables to use this feature." : data.error);
+        setError(data.error);
       } else {
         setAiResponse(data.response);
       }
     } catch (err) {
-      setError("Failed to connect to AI service.");
+      console.error("AI Chat Error:", err);
+      setError("Failed to connect to AI service. Please check your internet connection.");
     } finally {
       setIsAiThinking(false);
     }

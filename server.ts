@@ -7,10 +7,21 @@ import { solveSudoku, generateSudoku, analyzeSudoku, getHint } from "./src/lib/s
 import Groq from "groq-sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
-const gemini = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
-const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
+const getGemini = () => {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return null;
+  return new GoogleGenerativeAI(key);
+};
+
+const getGroq = () => {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return null;
+  return new Groq({ apiKey: key });
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,9 +33,13 @@ app.use(express.json());
 app.post("/api/ai/chat", async (req, res) => {
     const { message, grid } = req.body;
     
+    const gemini = getGemini();
+    const groq = getGroq();
+    
     if (!gemini && !groq) {
+      console.warn("AI Chat attempt failed: No API keys configured in environment.");
       return res.status(503).json({ 
-        error: "No AI API keys configured. Please set GEMINI_API_KEY or GROQ_API_KEY in your environment." 
+        error: "No AI API keys configured. Please set GEMINI_API_KEY or GROQ_API_KEY in your environment variables on Vercel." 
       });
     }
 
@@ -73,7 +88,8 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
             success: true 
           });
         } catch (geminiErr: any) {
-          console.warn("Gemini API failed, attempting fallback to Groq:", geminiErr.message);
+          console.error("Gemini API error:", geminiErr);
+          console.warn("Attempting fallback to Groq...");
           // Fall through to Groq
         }
       }
@@ -89,7 +105,7 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
               },
               { role: "user", content: message }
             ],
-            model: "llama-3.3-70b-versatile",
+            model: "llama-3-70b-8192", // Using a widely available stable model
           });
           
           return res.json({ 
@@ -98,6 +114,13 @@ Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDi
             success: true 
           });
         } catch (groqErr: any) {
+          console.error("Groq API error:", groqErr);
+          return res.status(503).json({ 
+            error: "Both Gemini and Groq APIs failed. Please check your API keys and try again later.",
+            details: groqErr.message
+          });
+        }
+      }
           console.error("Groq API also failed:", groqErr.message);
           return res.status(503).json({ 
             error: "Both Gemini and Groq APIs failed. Please try again later.",
