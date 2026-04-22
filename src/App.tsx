@@ -168,24 +168,16 @@ function Layout({ children }: { children: React.ReactNode }) {
               </div>
 
               {/* Text Elements */}
+              <div className="flex flex-col items-center text-center space-y-3">
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="mb-2"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-1"
                 >
-                  <img src="/Favicon.png" alt="GridMind Logo" className="w-16 h-16 object-contain" />
-                </motion.div>
-                <div className="flex flex-col items-center text-center space-y-3">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="space-y-1"
-                  >
-                    <h1 className="text-3xl font-serif font-black tracking-tighter uppercase text-brand">
-                      GridMind
-                    </h1>
+                  <h1 className="text-3xl font-serif font-black tracking-tighter uppercase text-brand">
+                    GridMind
+                  </h1>
                   <div className="h-0.5 w-12 bg-linear-to-r from-primary to-secondary mx-auto rounded-full" />
                 </motion.div>
                 
