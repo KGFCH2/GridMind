@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cambria Math", "Cambria", serif;
+  --font-sans: "Comic Sans MS", "Comic Sans", cursive;
+  
+  --color-primary: var(--theme-primary);
+  --color-secondary: var(--theme-secondary);
+  --color-accent: var(--theme-brand);
+  --color-deep-pink: var(--theme-deep);
+  --color-brand: var(--theme-brand);
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --theme-primary: #f43f5e; /* Rose 500 (Pink) */
+    --theme-primary-rgb: 244, 63, 94;
+    --theme-secondary: #ec4899; /* Pink 500 (Pink) */
+    --theme-secondary-rgb: 236, 72, 153;
+    --theme-deep: #be123c; /* Rose 700 */
+    --theme-brand: #f43f5e; 
+  }
+
+  .dark {
+    --theme-primary: #10b981; /* Emerald 500 (Green) */
+    --theme-primary-rgb: 16, 185, 129;
+    --theme-secondary: #059669; /* Emerald 600 (Green) */
+    --theme-secondary-rgb: 5, 150, 105;
+    --theme-deep: #34d399; /* Emerald 400 */
+    --theme-brand: #10b981; 
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+  }
+  
+  body {
+    @apply font-sans transition-colors duration-300 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100;
+    font-size: 0.95rem;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight font-bold;
+  }
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-stone-100 dark:bg-stone-900 rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-stone-300 dark:bg-stone-700 rounded-full hover:bg-primary transition-colors;
+  }
+
+  .sudoku-pattern {
+    background-image: radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0);
+    background-size: 24px 24px;
+    color: var(--theme-primary);
+  }
+}
+
+.markdown-body {
+  @apply font-sans text-sm leading-tight;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  @apply font-serif mt-2 mb-1;
+}
+
+.markdown-body p {
+  @apply mb-2;
+}
