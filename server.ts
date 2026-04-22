@@ -2,9 +2,12 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 import { solveSudoku, generateSudoku, analyzeSudoku, getHint } from "./src/lib/sudoku.ts";
 import Groq from "groq-sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+
+dotenv.config();
 
 const gemini = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
@@ -28,7 +31,27 @@ async function startServer() {
       });
     }
 
-    const systemPrompt = `You are GridMind, a Sudoku expert. Help the user with their puzzle. Current grid state: ${JSON.stringify(grid)}`;
+    // Determine grid size and valid digits
+    const gridSize = grid.length;
+    const maxDigit = gridSize;
+    const validDigits = Array.from({length: maxDigit}, (_, i) => i + 1).join(', ');
+    
+    const systemPrompt = `You are GridMind, an expert Sudoku AI assistant. You are helping with a ${gridSize}x${gridSize} Sudoku puzzle.
+
+CRITICAL RULES:
+- Only suggest digits from 1 to ${maxDigit} (${validDigits})
+- Never mention or suggest digits ${maxDigit + 1} or higher
+- For ${gridSize}x${gridSize} grids, valid moves are only 1-${maxDigit}
+- Current grid state: ${JSON.stringify(grid)}
+
+When providing hints or solving assistance:
+- Always stay within the ${maxDigit} digit range
+- Explain Sudoku rules and strategies clearly
+- Be encouraging and educational
+- Provide step-by-step logical reasoning
+- Suggest multiple possible approaches when appropriate
+
+Remember: This is a ${gridSize}x${gridSize} puzzle, so only use digits 1-${maxDigit}!`;
 
     try {
       // Try Gemini first
