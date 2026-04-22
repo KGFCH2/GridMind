@@ -85,31 +85,30 @@ export default function Solver() {
 
   const triggerSuccess = () => {
     setShowSuccess(true);
-    if (!wasAssisted) {
-      const duration = 7 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 10000, colors: ['#f43f5e', '#10b981', '#fbbf24'] };
+    // Always celebrate with party confetti!
+    const duration = 7 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 10000, colors: ['#f43f5e', '#10b981', '#fbbf24'] };
 
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const interval: any = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
 
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
 
-        const particleCount = 80 * (timeLeft / duration);
-        // Party popper bursts from corners
-        confetti({ ...defaults, particleCount, origin: { x: 0, y: 1 } });
-        confetti({ ...defaults, particleCount, origin: { x: 1, y: 1 } });
-        
-        // Occasional center burst
-        if (timeLeft % 1000 < 250) {
-          confetti({ ...defaults, particleCount: 40, origin: { x: 0.5, y: 0.7 } });
-        }
-      }, 400);
-    }
+      const particleCount = 80 * (timeLeft / duration);
+      // Party popper bursts from corners
+      confetti({ ...defaults, particleCount, origin: { x: 0, y: 1 } });
+      confetti({ ...defaults, particleCount, origin: { x: 1, y: 1 } });
+      
+      // Occasional center burst
+      if (timeLeft % 1000 < 250) {
+        confetti({ ...defaults, particleCount: 40, origin: { x: 0.5, y: 0.7 } });
+      }
+    }, 400);
   };
 
   const handleCellChange = (r: number, c: number, val: string) => {
