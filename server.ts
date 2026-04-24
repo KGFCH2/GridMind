@@ -31,6 +31,19 @@ app.use(express.json());
 // API Routes
 app.post("/api/ai/chat", async (req, res) => {
     const { message, grid } = req.body;
+
+    if (!grid || !Array.isArray(grid)) {
+      return res.status(400).json({ error: "Invalid grid provided" });
+    }
+
+    // Check if grid is already solved
+    const { isGridCompleteAndValid } = await import("./src/lib/sudoku.js");
+    if (isGridCompleteAndValid(grid)) {
+      return res.json({ 
+        response: "All grids are filled; nothing to recommend. Start a new game and ask me.",
+        success: true 
+      });
+    }
     
     const gemini = getGemini();
     const groq = getGroq();

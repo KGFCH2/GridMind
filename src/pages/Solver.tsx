@@ -99,14 +99,22 @@ export default function Solver() {
         return clearInterval(interval);
       }
 
-      const particleCount = 80 * (timeLeft / duration);
-      // Party popper bursts from corners
-      confetti({ ...defaults, particleCount, origin: { x: 0, y: 1 } });
-      confetti({ ...defaults, particleCount, origin: { x: 1, y: 1 } });
+      const particleCount = 40 * (timeLeft / duration);
       
-      // Occasional center burst
-      if (timeLeft % 1000 < 250) {
-        confetti({ ...defaults, particleCount: 40, origin: { x: 0.5, y: 0.7 } });
+      // Centralized burst that feels part of the trophy page
+      confetti({ 
+        ...defaults, 
+        particleCount, 
+        origin: { x: 0.5, y: 0.6 },
+        scalar: 1.2,
+        drift: 0,
+        gravity: 0.8
+      });
+      
+      // Smaller side bursts relative to center
+      if (timeLeft % 800 < 200) {
+        confetti({ ...defaults, particleCount: 20, origin: { x: 0.3, y: 0.6 } });
+        confetti({ ...defaults, particleCount: 20, origin: { x: 0.7, y: 0.6 } });
       }
     }, 400);
   };
@@ -311,6 +319,10 @@ export default function Solver() {
   };
 
   const handleAiChat = async () => {
+    if (isGridCompleteAndValid(grid)) {
+      setAiResponse("All grids are filled; nothing to recommend. Start a new game and ask me.");
+      return;
+    }
     setIsAiThinking(true);
     setAiResponse(null);
     try {
