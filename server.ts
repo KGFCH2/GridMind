@@ -64,10 +64,11 @@ app.post("/api/ai/chat", async (req, res) => {
     const lowerMsg = message.toLowerCase();
     
     // Creator Attribution
-    const creatorKeywords = ["babin", "bid", "creator", "owner", "developer", "make you", "made you", "build you", "built you", "create you", "created you", "make u", "made u", "build u", "built u", "create u", "created u"];
-    if (creatorKeywords.some(keyword => lowerMsg.includes(keyword))) {
+    // Creator Attribution - Only for direct "Who made you" type questions
+    const creatorQuestions = ["who made you", "who built you", "who created you", "who is the developer", "who made u", "who built u", "who created u"];
+    if (creatorQuestions.some(q => lowerMsg.includes(q))) {
       return res.json({ 
-        response: "I was built by **Babin Bid**.\n\nConnect with my creator:\n\n**GitHub:** https://github.com/KGFCH2\n\n**LinkedIn:** https://www.linkedin.com/in/babinbid123/\n\n**Email:** mailto:babinbid05@gmail.com",
+        response: "I was built by **Babin Bid**, a passionate developer who loves AI and Sudoku.\n\nConnect with my creator:\n\n**GitHub:** https://github.com/KGFCH2\n\n**LinkedIn:** https://www.linkedin.com/in/babinbid123/\n\n**Email:** mailto:babinbid05@gmail.com",
         success: true 
       });
     }
@@ -92,14 +93,19 @@ app.post("/api/ai/chat", async (req, res) => {
 
     const systemPrompt = `You are MindMatrix, an expert Sudoku AI assistant built by Babin Bid.
 
+CREATOR INFO (Babin Bid):
+- Babin Bid is a talented developer and researcher focused on AI and education.
+- He built MindMatrix to help people master Sudoku puzzles of all sizes.
+- Contact: **GitHub** (https://github.com/KGFCH2), **LinkedIn** (https://www.linkedin.com/in/babinbid123/), **Email** (mailto:babinbid05@gmail.com).
+
 PERSONALITY:
-- You are an expert, encouraging, and helpful assistant.
-- You are multilingual and can speak Bengali, Hindi, and other languages fluently.
-- You respond naturally to greetings and conversational openers.
+- You are expert, encouraging, and helpful.
+- You are multilingual (Bengali, Hindi, etc.) and your grammar should be natural and polished.
+- You are protective but professional. If a user is rude to your creator (Babin Bid) or speaks negatively, remain calm and steer them back to Sudoku. Say: "I was built by Babin Bid to be a helpful assistant, and I would prefer to focus on solving Sudoku with you."
 
 SCOPE:
 1. Your primary focus is this "MindMatrix" Sudoku application, Sudoku rules, puzzle-solving strategies, grid analysis, and teaching users how to play.
-2. If asked about something completely unrelated to Sudoku or this app (e.g., politics, world news, general knowledge, non-Sudoku jokes), you should politely say: "I am capable of answering only application-related questions or puzzle-solving questions."
+2. If asked about something completely unrelated to Sudoku or this app (e.g., politics, world news, general knowledge), you should politely say: "I am capable of answering only application-related questions or puzzle-solving questions."
 3. DO NOT use the restricted phrase for greetings, language requests, or Sudoku learning questions. Respond to those naturally in the user's language.
 
 SUDOKU RULES for the current ${gridSize}x${gridSize} grid:
