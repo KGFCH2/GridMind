@@ -266,6 +266,15 @@ export default function Solver() {
     }
   };
 
+  const handleStopAnimation = () => {
+    if (animationRef.current) {
+      window.clearTimeout(animationRef.current);
+      animationRef.current = null;
+    }
+    setAnimating(false);
+    setIsProcessing(false);
+  };
+
   const handleGenerate = async (diff: 'Easy' | 'Medium' | 'Hard') => {
     setIsProcessing(true);
     setSolving(true);
@@ -837,14 +846,24 @@ export default function Solver() {
               {isProcessing && solving && !animating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
               Solve
             </button>
-            <button
-              onClick={handleAnimateSolve}
-              disabled={solving || animating || isProcessing}
-              className="flex items-center gap-1 px-3 py-2 bg-primary dark:bg-stone-800 text-white dark:text-stone-100 rounded-xl font-bold text-sm hover:bg-stone-900 dark:hover:bg-stone-700 hover:scale-105 hover:shadow-xl transition-all disabled:opacity-50 shadow-md min-w-30 justify-center"
-            >
-              {isProcessing && animating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              Animate
-            </button>
+            {animating ? (
+              <button
+                onClick={handleStopAnimation}
+                className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 hover:scale-105 hover:shadow-xl transition-all shadow-md min-w-30 justify-center"
+              >
+                <X className="w-4 h-4" />
+                Stop
+              </button>
+            ) : (
+              <button
+                onClick={handleAnimateSolve}
+                disabled={solving || isProcessing}
+                className="flex items-center gap-1 px-3 py-2 bg-primary dark:bg-stone-800 text-white dark:text-stone-100 rounded-xl font-bold text-sm hover:bg-stone-900 dark:hover:bg-stone-700 hover:scale-105 hover:shadow-xl transition-all disabled:opacity-50 shadow-md min-w-30 justify-center"
+              >
+                {isProcessing && animating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                Animate
+              </button>
+            )}
             <p className="w-full text-[9px] text-center text-stone-400 dark:text-stone-500 font-medium mt-1">
               Note: Using <span className="text-primary font-bold">Animate</span> or <span className="text-stone-900 dark:text-stone-100 font-bold">Solve</span> disqualifies you from winning a trophy.
             </p>
